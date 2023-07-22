@@ -76,7 +76,7 @@ if __name__ == "__main__":
 
     callback = CustomCallback()
 
-    trainer = pl.Trainer(max_epochs=args.epoch,callbacks=[callback,],accelerator='gpu', auto_lr_find = True)
+    trainer = pl.Trainer(max_epochs=args.epoch,callbacks=[callback,],accelerator='gpu')
 
     trainer.fit(model=module,datamodule=data_module)
 
