@@ -58,7 +58,7 @@ if __name__ == "__main__":
 
 
     # define the dataset cifar10
-    train_dataset = CIFAR10(root=args.train_dir)
+    train_dataset = CIFAR10(download=True,train=True)
 
     # define the lightning datamodule
     data_module = DataModule(train_dataset=train_dataset,valid_dataset=None,batch_size=args.batch_size)
