@@ -16,6 +16,7 @@ class GaussianDiffusion():
         self.image_size = image_size
         self.beta_start = beta_start
         self.beta_end = beta_end
+        self.device = device
 
         if beta_scheduler == 'linear':
             self.betas = self.linear_beta_scheduler()
@@ -27,10 +28,10 @@ class GaussianDiffusion():
 
         self.alphas = 1 - self.betas
         self.alphas_tidle = torch.cumprod(self.alphas, dim=-1)
-        self.device = device
+        
 
     def linear_beta_scheduler(self):
-        return torch.linspace(start=self.beta_start, end=self.beta_end, steps=self.num_steps)
+        return torch.linspace(start=self.beta_start, end=self.beta_end, steps=self.num_steps).to(self.device)
 
     def cosine_beta_scheduler(self, s=0.008):
         betas = []
@@ -41,7 +42,7 @@ class GaussianDiffusion():
             beta_t = min(1 - f_t / f_tsub1, 0.999)
             betas.append(beta_t)
 
-        return torch.tensor(betas)
+        return torch.tensor(betas).to(self.device)
 
     def sample_timestep(self, n):
         return torch.randint(0, self.num_steps, size=(n,))
