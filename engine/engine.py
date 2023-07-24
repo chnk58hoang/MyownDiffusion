@@ -46,7 +46,7 @@ def train(dataloader,diffusion,unet_model,loss_fn,optimizer,device):
         if np.random.random() < 0.1:
             labels = None
 
-        t = diffusion.sample_timestep(images.size(0))
+        t = diffusion.sample_timestep(images.size(0)).to(device)
         x_t, noise = diffusion.forward_diffusion(images, t)
         predicted_noise = unet_model(x_t, t, labels)
         loss = loss_fn(predicted_noise, noise)
