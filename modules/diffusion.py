@@ -65,7 +65,7 @@ class GaussianDiffusion():
                 else:
                     z = torch.zeros_like(x_T)
 
-                un_cond_noise = model(x_T, t)
+                un_cond_noise = model(x_T, t,None)
                 cond_noise = model(x_T, t, labels)
 
                 predicted_noise = torch.lerp(un_cond_noise, cond_noise, cfg_scale)
