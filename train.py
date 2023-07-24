@@ -58,17 +58,6 @@ if __name__ == "__main__":
         trainer(train_loss,unet_model,epoch,optimizer)
 
 
-        if epoch % 10 == 0:
-            print('Start sampling new images')
-            labels = torch.arange(10).to(device)
-            new_imgs = diffusion.reverse_sampling(unet_model,10,labels)
-            plot_images(new_imgs)
-
-        if trainer.stop:
-            break
-
-
-
 
     
 
