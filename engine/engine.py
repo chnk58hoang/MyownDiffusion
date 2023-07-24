@@ -1,5 +1,6 @@
 import numpy as np
 import torch
+from tqdm import tqdm
 
 class Trainer:
     def __init__(self, lr_scheduler, patience=5, save_path='checkpoints/best_model.pth', best_loss=float('inf')):
@@ -39,7 +40,7 @@ def train(dataloader,diffusion,unet_model,loss_fn,optimizer,device):
     train_loss = 0.0
     unet_model = unet_model.to(device)
     unet_model.train()
-    for batch_idx,data in enumerate(dataloader):
+    for batch_idx,data in tqdm(enumerate(dataloader)):
         images = data[0].to(device)
         labels = data[1].to(device)
 
