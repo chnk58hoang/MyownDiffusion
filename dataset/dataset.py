@@ -31,6 +31,9 @@ class CustomCifar10(Dataset):
                                     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
                                     ])
 
+
+    def __len__(self):
+        return len(self.dataframe)
     
     def __getitem__(self, index):
         image_path = self.dataframe['img_paths'].iloc[index]
