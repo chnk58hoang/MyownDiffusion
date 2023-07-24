@@ -15,7 +15,7 @@ args = parser.parse_args()
 n = 10
 device = "cuda"
 model = UNet_conditional(num_classes=10,device=device).to(device)
-ckpt = torch.load()['model_state_dict']
+ckpt = torch.load(args.weight_path)['model_state_dict']
 model.load_state_dict(ckpt)
 diffusion =GaussianDiffusion(image_size=64, device=device,num_steps=1000)
 y = torch.Tensor([6] * n).long().to(device)

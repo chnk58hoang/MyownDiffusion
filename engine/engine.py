@@ -26,15 +26,8 @@ class Trainer:
             }, self.save_path)
 
         else:
-            self.counter += 1
-            print(
-                f'Loss did not improve from {self.best_val_loss}! Counter {self.counter} of {self.patience}.')
-            if self.counter < self.patience:
-                self.lr_scheduler.step(current_valid_loss)
-
-            else:
-                self.stop = True
-
+            print(f'Loss did not improve from {self.best_val_loss}! Counter {self.counter} of {self.patience}.')
+            self.lr_scheduler.step(current_valid_loss)
 
 def train(dataset,dataloader,diffusion,unet_model,loss_fn,optimizer,device):
     train_loss = 0.0
