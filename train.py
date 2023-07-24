@@ -2,8 +2,8 @@ from typing import Any, Optional
 from modules.diffusion import GaussianDiffusion
 from modules.unet import UNet_conditional
 from dataset.datamodule import DataModule
+from dataset.dataset import CustomCifar10
 from callback.callback import CustomCallback
-from torchvision.datasets.cifar import CIFAR10
 from torch import nn
 import torch
 import pytorch_lightning as pl
@@ -58,7 +58,7 @@ if __name__ == "__main__":
 
 
     # define the dataset cifar10
-    train_dataset = CIFAR10(root=args.train_dir,download=True,train=True)
+    train_dataset = CustomCifar10(data_dir=args.train_dir)
 
     # define the lightning datamodule
     data_module = DataModule(train_dataset=train_dataset,valid_dataset=None,batch_size=args.batch_size)
