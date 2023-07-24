@@ -7,8 +7,6 @@ from utils import plot_images
 from torch import nn
 import torch
 import argparse
-import logging
-
 
 
 if __name__ == "__main__":
@@ -55,13 +53,13 @@ if __name__ == "__main__":
 
 
     for epoch in range(args.epoch):
-        logging.INFO(f'Epoch: {epoch}/{args.epoch}')
+        print(f'Epoch: {epoch}/{args.epoch}')
         train_loss = train(train_dataloader,diffusion,unet_model,loss_fn,optimizer,device)
         trainer(train_loss,unet_model,epoch,optimizer)
 
 
         if epoch % 10 == 0:
-            logging.INFO(f'Start sampling new images')
+            print('Start sampling new images')
             labels = torch.arange(10).to(device)
             new_imgs = diffusion.reverse_sampling(unet_model,10,labels)
             plot_images(new_imgs)
