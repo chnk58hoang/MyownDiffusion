@@ -54,7 +54,7 @@ if __name__ == "__main__":
 
     for epoch in range(args.epoch):
         print(f'Epoch: {epoch}/{args.epoch}')
-        train_loss = train(train_dataloader,diffusion,unet_model,loss_fn,optimizer,device)
+        train_loss = train(train_dataset,train_dataloader,diffusion,unet_model,loss_fn,optimizer,device)
         trainer(train_loss,unet_model,epoch,optimizer)
 
 

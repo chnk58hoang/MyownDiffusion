@@ -36,11 +36,11 @@ class Trainer:
                 self.stop = True
 
 
-def train(dataloader,diffusion,unet_model,loss_fn,optimizer,device):
+def train(dataset,dataloader,diffusion,unet_model,loss_fn,optimizer,device):
     train_loss = 0.0
     unet_model = unet_model.to(device)
     unet_model.train()
-    for batch_idx,data in tqdm(enumerate(dataloader)):
+    for batch_idx,data in tqdm(enumerate(dataloader),total=int(len(dataset)/dataloader.batch_size)):
         images = data[0].to(device)
         labels = data[1].to(device)
 
