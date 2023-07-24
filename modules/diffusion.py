@@ -7,6 +7,7 @@ class GaussianDiffusion():
     def __init__(self,
                  image_size,
                  num_steps,
+                 device,
                  beta_start = 1e-4,
                  beta_end = 0.02,
                  beta_scheduler = "linear",
@@ -26,7 +27,7 @@ class GaussianDiffusion():
 
         self.alphas = 1 - self.betas
         self.alphas_tidle = torch.cumprod(self.alphas, dim=-1)
-        self.device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
+        self.device = device
 
     def linear_beta_scheduler(self):
         return torch.linspace(start=self.beta_start, end=self.beta_end, steps=self.num_steps)
