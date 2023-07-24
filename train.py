@@ -1,52 +1,23 @@
-from typing import Any, Optional
 from modules.diffusion import GaussianDiffusion
 from modules.unet import UNet_conditional
-from dataset.datamodule import DataModule
+from torch.utils.data import DataLoader
 from dataset.dataset import CustomCifar10
-from callback.callback import CustomCallback
+from engine.engine import train,Trainer
+from utils import plot_images
 from torch import nn
 import torch
-import pytorch_lightning as pl
-import numpy as np
 import argparse
+import logging
 
-class Module(pl.LightningModule):
-    def __init__(self,
-                 diffusion,
-                 unet_model,
-                 lr):
-        super().__init__()
-        self.diffusion = diffusion
-        self.unet_model = unet_model
-        self.loss = nn.MSELoss()
-        self.device_ = self.diffusion.device
-        self.lr = lr
-
-    def configure_optimizers(self):
-        optimizer = torch.optim.AdamW(params=self.unet_model.parameters(), lr=self.lr)
-        return {'optimizer': optimizer}
-
-    def training_step(self, batch):
-        images = batch[0].to(self.device_)
-        labels = batch[1].to(self.device_)
-
-        if np.random.random() < 0.1:
-            labels = None
-
-        t = self.diffusion.sample_timestep(images.size(0))
-        x_t, noise = self.diffusion.forward_diffusion(images, t)
-        predicted_noise = self.unet_model(x_t, t, labels)
-        loss = self.loss(predicted_noise, noise)
-
-        return loss
 
 
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--epoch", type=int, default=100)
-    parser.add_argument("--batch_size", type=int, default=8)
+    parser.add_argument("--batch_size", type=int, default=64)
     parser.add_argument("--train_dir",type=str)
+    parser.add_argument("--save_path",type=str)
     parser.add_argument("--lr", type=float,default=1e-2)
     parser.add_argument("--image_size", type=int, default=64)
     parser.add_argument("--num_steps", type=int, default=1000)
@@ -56,29 +27,49 @@ if __name__ == "__main__":
     args = parser.parse_args()
     
 
+    #define the device
+    device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 
     # define the dataset cifar10
     train_dataset = CustomCifar10(data_dir=args.train_dir)
 
-    # define the lightning datamodule
-    data_module = DataModule(train_dataset=train_dataset,valid_dataset=None,batch_size=args.batch_size)
+    # define the dataloader
 
-    # define the diffusion process
-    gausian_diffusion = GaussianDiffusion(image_size=args.image_size,num_steps=args.num_steps,beta_start=args.beta_start,
-                                          beta_end=args.beta_end,beta_scheduler=args.beta_scheduler)
-    
-    # define the unet_model
-    unet_model = UNet_conditional()
+    train_dataloader = DataLoader(dataset=train_dataset,batch_size=args.batch_size,shuffle=True)
 
-    #define the lightning module
-    module = Module(diffusion=gausian_diffusion,unet_model=unet_model,lr=args.lr)
-    #define the callback
+    # define the unet model
+    unet_model = UNet_conditional(num_classes=10)
 
-    callback = CustomCallback()
+    # define the diffusion
+    diffusion = GaussianDiffusion()
 
-    trainer = pl.Trainer(max_epochs=args.epoch,callbacks=[callback,],accelerator='gpu')
+    # define the loss function'
+    loss_fn = nn.MSELoss()
 
-    trainer.fit(model=module,datamodule=data_module)
+    # define the optimizer and the lr scheduler
+    optimizer = torch.optim.AdamW(params=unet_model.parameters(),lr=args.lr)
+    lr_scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer=optimizer,mode='min',factor=0.5,patience=2)
+
+    # define the trainer
+    trainer = Trainer(lr_scheduler=lr_scheduler,save_path=args.save_path)
+
+
+    for epoch in range(args.epoch):
+        logging.INFO(f'Epoch: {epoch}/{args.epoch}')
+        train_loss = train(train_dataloader,diffusion,unet_model,loss_fn,optimizer,device)
+        trainer(train_loss,unet_model,epoch,optimizer)
+
+
+        if epoch % 10 == 0:
+            logging.INFO(f'Start sampling new images')
+            labels = torch.arange(10).to(device)
+            new_imgs = diffusion.reverse_sampling(unet_model,10,labels)
+            plot_images(new_imgs)
+
+        if trainer.stop:
+            break
+
+
 
 
     
