@@ -39,7 +39,7 @@ if __name__ == "__main__":
     unet_model = UNet_conditional(num_classes=10)
 
     # define the diffusion
-    diffusion = GaussianDiffusion(image_size=args.image_size,num_steps=args.num_steps)
+    diffusion = GaussianDiffusion(image_size=args.image_size,num_steps=args.num_steps,device=device)
 
     # define the loss function'
     loss_fn = nn.MSELoss()
