@@ -15,9 +15,9 @@ class CustomCifar10(Dataset):
         classes = []
         img_paths = []
         for i,folder_name in enumerate(self.all_data_folders):
-            classes.append(i)
             img_path = glob.glob(os.path.join(self.data_dir,folder_name,'*.*'))
             img_paths += img_path
+            classes += [i]*len(img_path)
         
         dataframe['classes'] = classes
         dataframe['img_paths'] = img_paths
